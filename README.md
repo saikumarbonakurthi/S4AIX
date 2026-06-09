@@ -127,21 +127,23 @@
 				"sap.ui.controllerExtensions": {
 					"sap.suite.ui.generic.template.ListReport.view.ListReport": {
 						"controllerName": "LineItemSuperQuery.ext.controller.ListReportExt",
-						"sap.ui.generic.app":{
+						"sap.ui.generic.app": {
 							"ListReport|ETY_INVSQ_RESULTSet": {
-							"EntitySet":"ETY_INVSQ_RESULTSet",
-							"Actions":{
-								"ExportPDF": {
-									"id": "btnExportPDF",
-									"text": "Export to PDF",
-									"press": "onExportPDF",
-									"requiresSelection": false
+								"EntitySet": "ETY_INVSQ_RESULTSet",
+								"Actions": {
+									"ExportPDF": {
+										"id": "btnExportPDF",
+										"text": "Export to PDF",
+										"press": "onExportPDF",
+										"requiresSelection": false
+									}
 								}
 							}
 						}
 					}
 				}
-			},
+			}
+		},
 		"contentDensities": {
 			"compact": true,
 			"cozy": true
@@ -177,4 +179,4 @@
 		"uri": "/sap/bc/ui5_ui5/sap/zinvlinesq",
 		"_version": "1.1.0"
 	}
-}# S4AIX
+}

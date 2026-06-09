@@ -290,6 +290,113 @@ sap.ui.controller("LineItemSuperQuery.ext.controller.ListReportExt", {
 		};
 
 		oGlobalFilter.setFilterData(oDefaultFilter);
+	},
+
+	// ============================================================================
+	// PDF EXPORT  (added: behaves like Export to Excel — full filtered set, client-side)
+	// ============================================================================
+	onExportPDF: function () {
+		var oView = this.getView();
+		var oSFB = oView.byId("listReportFilter");
+		var oModel = oView.getModel();
+		var that = this;
+
+		// standard SmartFilterBar filters (Budat range etc. included automatically)
+		var aFilters = oSFB.getFilters();
+
+		// replay the custom Pchier tokens EXACTLY as onBeforeRebindTableExtension does,
+		// so the PDF data set matches the table data set
+		this.byId("pcInputGLV").getTokens().forEach(function (oTok) {
+			aFilters.push(new sap.ui.model.Filter("Pchier", "EQ", oTok.getKey() || oTok.getText()));
+		});
+
+		oView.setBusy(true);
+
+		// cheap COUNT first — decide before pulling rows into the browser
+		oModel.read("/ETY_INVSQ_RESULTSet/$count", {
+			filters: aFilters,
+			success: function (iCount) {
+				var n = parseInt(iCount, 10);
+
+				if (!n) {
+					oView.setBusy(false);
+					sap.m.MessageToast.show("No data to export.");
+					return;
+				}
+
+				// THRESHOLD — typical export is ~5K (fine). Block the rare large set.
+				if (n > 10000) {
+					oView.setBusy(false);
+					sap.m.MessageBox.warning(
+						n + " rows is too many for a readable PDF (~" + Math.ceil(n / 40) +
+						" pages). Narrow your filters, or use Export to Excel for the full set."
+					);
+					return;
+				}
+
+				// under threshold — read the full filtered set and render
+				oModel.read("/ETY_INVSQ_RESULTSet", {
+					filters: aFilters,
+					urlParameters: {
+						"$top": String(n)
+					},
+					success: function (oData) {
+						oView.setBusy(false);
+						that._buildPDF(oData.results || []);
+					},
+					error: function () {
+						oView.setBusy(false);
+						sap.m.MessageToast.show("PDF read failed.");
+					}
+				});
+			},
+			error: function () {
+				oView.setBusy(false);
+				sap.m.MessageToast.show("Could not determine record count.");
+			}
+		});
+	},
+
+	_buildPDF: function (aRows) {
+		// format amounts so the PDF matches the on-screen / Excel values (e.g. -2.774,00)
+		var oAmtFmt = sap.ui.core.format.NumberFormat.getFloatInstance({
+			groupingEnabled: true,
+			decimals: 2
+		});
+
+		aRows = aRows.map(function (row) {
+			var r = Object.assign({}, row);
+			// >>> repeat per amount field that exists in your $metadata <<<
+			if (r.Dmbtr !== undefined && r.Dmbtr !== null) {
+				r.Dmbtr = oAmtFmt.format(parseFloat(r.Dmbtr));
+			}
+			return r;
+		});
+
+		var doc = new window.jspdf.jsPDF("l", "pt", "a4"); // landscape
+
+		// >>> REPLACE dataKey values with the REAL property names from $metadata <<<
+		// (open /sap/opu/odata/sap/ZGWP_INV_LINE_ITEM_SQ_SRV/$metadata, EntityType ETY_INVSQ_RESULT)
+		var aColumns = [
+			{ header: "Company Code", dataKey: "Bukrs" },
+			{ header: "Document No", dataKey: "Belnr" },
+			{ header: "Period", dataKey: "Period" },
+			{ header: "Amount", dataKey: "Dmbtr" }
+			// ...add your 5–7 chosen columns...
+		];
+
+		doc.autoTable({
+			columns: aColumns,
+			body: aRows,
+			styles: {
+				fontSize: 7
+			},
+			margin: {
+				top: 30
+			}
+		});
+
+		doc.save("LineItems.pdf");
 	}
 
 });

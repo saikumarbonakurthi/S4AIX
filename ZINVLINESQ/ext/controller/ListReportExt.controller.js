@@ -301,6 +301,11 @@ sap.ui.controller("LineItemSuperQuery.ext.controller.ListReportExt", {
 		var oModel = oView.getModel();
 		var that = this;
 
+		if (!window.jspdf || !window.jspdf.jsPDF) {
+			sap.m.MessageBox.error("PDF library is not available. Reload the app and try again.");
+			return;
+		}
+
 		// standard SmartFilterBar filters (Budat range etc. included automatically)
 		var aFilters = oSFB.getFilters();
 
@@ -358,6 +363,11 @@ sap.ui.controller("LineItemSuperQuery.ext.controller.ListReportExt", {
 	},
 
 	_buildPDF: function (aRows) {
+		if (!window.jspdf || !window.jspdf.jsPDF) {
+			sap.m.MessageBox.error("PDF library is not available.");
+			return;
+		}
+
 		// format amounts so the PDF matches the on-screen / Excel values (e.g. -2.774,00)
 		var oAmtFmt = sap.ui.core.format.NumberFormat.getFloatInstance({
 			groupingEnabled: true,
@@ -384,6 +394,11 @@ sap.ui.controller("LineItemSuperQuery.ext.controller.ListReportExt", {
 			{ header: "Amount", dataKey: "Dmbtr" }
 			// ...add your 5–7 chosen columns...
 		];
+
+		if (typeof doc.autoTable !== "function") {
+			sap.m.MessageBox.error("PDF table plugin is not available.");
+			return;
+		}
 
 		doc.autoTable({
 			columns: aColumns,

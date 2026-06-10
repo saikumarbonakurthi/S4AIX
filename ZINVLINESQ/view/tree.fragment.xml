@@ -1,0 +1,27 @@
+<core:FragmentDefinition xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:table="sap.ui.table">
+    <Dialog id="vendorValueHelp" title="Profit Center Hierarchy" contentWidth="60%" contentHeight="70%" draggable="true" resizable="true">
+        <content>
+            <table:TreeTable id="table"
+                selectionMode="MultiToggle"
+                toggleOpenState=".ontoggleOpenState"
+                rows="{treeData>/PcHierarchySet}">
+                <table:columns>
+                    <table:Column>
+                        <Label text="Profit Center" />
+                        <table:template>
+                            <Text text="{treeData>Parent}" />
+                        </table:template>
+                    </table:Column>
+                </table:columns>
+            </table:TreeTable>
+        </content>
+        <beginButton>
+            <Button text="OK" press=".onTreeOk" />
+        </beginButton>
+        <endButton>
+            <Button text="Cancel" press=".onTreeCancel" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

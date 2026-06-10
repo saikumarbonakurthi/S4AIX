@@ -1,0 +1,17 @@
+specVersion: "3.0"
+metadata:
+  name: LineItemSuperQuery
+type: application
+framework:
+  name: OpenUI5
+  version: "1.120.27"
+  libraries:
+    - name: sap.m
+    - name: sap.ui.core
+    - name: sap.ui.comp
+    - name: sap.ui.table
+    - name: sap.suite.ui.generic.template
+resources:
+  configuration:
+    paths:
+      webapp: ZINVLINESQ

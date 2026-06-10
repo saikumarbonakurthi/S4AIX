@@ -1,0 +1,31 @@
+# Deployment config for the SAPUI5 ABAP Repository (BSP zinvlinesq).
+# Run with: npx fiori deploy --config ui5-deploy.yaml
+# Credentials are NOT stored here - fiori deploy will prompt, or set
+# env vars XYZ_USER / XYZ_PASSWORD (see package.json deploy script).
+specVersion: "3.0"
+metadata:
+  name: LineItemSuperQuery
+type: application
+resources:
+  configuration:
+    paths:
+      webapp: ZINVLINESQ
+builder:
+  customTasks:
+    - name: deploy-to-abap
+      afterTask: generateCachebusterInfo
+      configuration:
+        target:
+          # >>> FILL IN: base URL of your ABAP / Gateway system <<<
+          url: https://YOUR-ABAP-HOST:PORT
+          client: "100" # >>> FILL IN: your client <<<
+          # For an SAP BTP destination instead of a direct URL, replace
+          # url/client above with:  destination: YOUR_DESTINATION
+        app:
+          name: ZINVLINESQ
+          description: Line Item Super Query
+          package: "$TMP" # >>> FILL IN: real package for transportable deploy <<<
+          transport: "" # >>> FILL IN: transport request (omit/empty for $TMP local) <<<
+        exclude:
+          - /localService/
+          - /test/
